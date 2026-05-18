@@ -807,6 +807,107 @@ def _plot_ga_improvement(results, R):
     print(f"\n  ✓ Графік збережено: {out}")
     plt.show()
 
+# =============================================================
+# ГРАФІК: порівняння ЖА та ГА за часом роботи
+# =============================================================
+
+def _plot_time_comparison(results, R):
+    """
+    Будує графік порівняння середнього часу роботи ЖА та ГА
+    для різних розмірностей задачі.
+    Зберігає файл time_comparison.png.
+    """
+    import matplotlib.pyplot as plt
+    import matplotlib
+
+    matplotlib.rcParams['font.family'] = 'Times New Roman'
+    matplotlib.rcParams['font.size'] = 12
+
+    ns = [r['n'] for r in results]
+    gr_time = [r['avg_gr_t'] for r in results]
+    ga_time = [r['avg_ga_t'] for r in results]
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    fig.patch.set_facecolor('white')
+    ax.set_facecolor('white')
+
+    c_gr = "#5A73A8"
+    c_ga = "#DF665C"
+
+    ax.plot(
+        ns, gr_time,
+        marker='o',
+        linestyle='-',
+        color=c_gr,
+        linewidth=2,
+        markersize=7,
+        label='Жадібний алгоритм'
+    )
+
+    ax.plot(
+        ns, ga_time,
+        marker='o',
+        linestyle='-',
+        color=c_ga,
+        linewidth=2,
+        markersize=7,
+        label='Генетичний алгоритм'
+    )
+
+    ax.set_title(
+        "Порівняння ЖА та ГА за часом роботи",
+        fontsize=14,
+        pad=20
+    )
+    ax.set_xlabel("Розмірність задачі n", fontsize=12, labelpad=10)
+    ax.set_ylabel("Середній час виконання, мс", fontsize=12, labelpad=10)
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('#888888')
+    ax.spines['bottom'].set_color('#888888')
+
+    ax.set_xticks(ns)
+
+    ax.grid(axis='y', color='#E0E0E0', linestyle='-', linewidth=0.8)
+    ax.grid(axis='x', color='#E0E0E0', linestyle='-', linewidth=0.4, alpha=0.5)
+
+    for i, txt in enumerate(gr_time):
+        ax.annotate(
+            f"{txt:.2f}",
+            (ns[i], gr_time[i]),
+            textcoords="offset points",
+            xytext=(0, 10),
+            ha='center',
+            fontsize=10,
+            color=c_gr
+        )
+
+    for i, txt in enumerate(ga_time):
+        ax.annotate(
+            f"{txt:.2f}",
+            (ns[i], ga_time[i]),
+            textcoords="offset points",
+            xytext=(0, 10),
+            ha='center',
+            fontsize=10,
+            color=c_ga
+        )
+
+    ax.legend(
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.15),
+        ncol=2,
+        frameon=False,
+        fontsize=11
+    )
+
+    plt.tight_layout()
+    out = "time_comparison.png"
+    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor='white')
+    print(f"\n  ✓ Графік часу збережено: {out}")
+    plt.show()
+
 
 # =============================================================
 # ЕКСПЕРИМЕНТ 3: ПОРІВНЯННЯ ЖА ТА ГА + ГРАФІК  (розд. 3.3.4)
@@ -911,6 +1012,8 @@ def experiment_comparison(R=20, pop_size=20,
             delta_f1=delta_f1,
             delta_f2=delta_f2,
             delta_t=delta_t,
+            avg_gr_t=avg_gr_t,
+            avg_ga_t=avg_ga_t,
             ga_wins=ga_wins,
             valid=valid
         ))
@@ -924,6 +1027,7 @@ def experiment_comparison(R=20, pop_size=20,
 
     if results:
         _plot_ga_improvement(results, R)
+        _plot_time_comparison(results, R)
 
 
 # =============================================================
@@ -986,7 +1090,7 @@ def print_main_menu():
     print("  ── ЕКСПЕРИМЕНТИ ───────────────────────────────────────")
     print("  11  Дослідження впливу MaxGen")
     print("  12  Дослідження впливу Pm")
-    print("  13  Порівняння алгоритмів за точністю та часом + ГРАФІК")
+    print("  13  Порівняння алгоритмів за точністю та часом + ГРАФІКИ")
     print()
     print("   0  Вихід")
     print(SEP)
