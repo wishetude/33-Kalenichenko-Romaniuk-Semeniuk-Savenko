@@ -636,10 +636,144 @@ def _progress(current, total, prefix="", width=30):
 
 
 # =============================================================
-# ЕКСПЕРИМЕНТ 1: ВПЛИВ ПАРАМЕТРА MaxGen   (розд. 3.3.2)
+# ЕКСПЕРИМЕНТ 1: ВПЛИВ ПАРАМЕТРА MaxGen   
 # =============================================================
 
-def experiment_maxgen(n=20, R=30, pop_size=20,
+def _plot_maxgen_experiment(results, n, R):
+    """
+    Будує два графіки для експерименту MaxGen:
+    1) спільний графік F1 і F2 з двома осями Y;
+    2) окремий графік середнього часу виконання.
+    """
+    import matplotlib.pyplot as plt
+    import matplotlib
+
+    matplotlib.rcParams['font.family'] = 'Times New Roman'
+    matplotlib.rcParams['font.size'] = 12
+
+    maxgen_values = [r['max_gen'] for r in results]
+    avg_f1 = [r['avg_f1'] for r in results]
+    avg_f2 = [r['avg_f2'] for r in results]
+    avg_time = [r['avg_time'] for r in results]
+
+    # ---------- Графік 1: MaxGen -> F1 і F2 ----------
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    fig.patch.set_facecolor('white')
+    ax1.set_facecolor('white')
+
+    c_f1 = "#5A73A8"
+    c_f2 = "#DF665C"
+
+    line1 = ax1.plot(
+        maxgen_values, avg_f1,
+        marker='o',
+        linestyle='-',
+        color=c_f1,
+        linewidth=2,
+        markersize=7,
+        label='Середнє F1'
+    )
+
+    ax1.set_xlabel("Кількість поколінь MaxGen", fontsize=12, labelpad=10)
+    ax1.set_ylabel("Середнє F1 (продуктивність)", fontsize=12, labelpad=10, color=c_f1)
+    ax1.tick_params(axis='y', labelcolor=c_f1)
+    ax1.set_xticks(maxgen_values)
+
+    ax2 = ax1.twinx()
+
+    line2 = ax2.plot(
+        maxgen_values, avg_f2,
+        marker='s',
+        linestyle='--',
+        color=c_f2,
+        linewidth=2,
+        markersize=7,
+        label='Середнє F2'
+    )
+
+    ax2.set_ylabel("Середнє F2 (надійність)", fontsize=12, labelpad=10, color=c_f2)
+    ax2.tick_params(axis='y', labelcolor=c_f2)
+
+    ax1.set_title(
+        f"Вплив MaxGen на середні значення F1 та F2 (n={n}, R={R})",
+        fontsize=14,
+        pad=20
+    )
+
+    ax1.grid(axis='y', color='#E0E0E0', linestyle='-', linewidth=0.8)
+    ax1.grid(axis='x', color='#E0E0E0', linestyle='-', linewidth=0.4, alpha=0.5)
+
+    ax1.spines['top'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+
+    lines = line1 + line2
+    labels = [l.get_label() for l in lines]
+
+    ax1.legend(
+        lines,
+        labels,
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.15),
+        ncol=2,
+        frameon=False,
+        fontsize=11
+    )
+
+    plt.tight_layout()
+    out = "maxgen_f1_f2.png"
+    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor='white')
+    print(f"\n  ✓ Графік F1/F2 для MaxGen збережено: {out}")
+    plt.show()
+
+    # ---------- Графік 2: MaxGen -> час ----------
+    fig, ax = plt.subplots(figsize=(10, 6))
+    fig.patch.set_facecolor('white')
+    ax.set_facecolor('white')
+
+    c_time = "#6A9955"
+
+    ax.plot(
+        maxgen_values, avg_time,
+        marker='o',
+        linestyle='-',
+        color=c_time,
+        linewidth=2,
+        markersize=7
+    )
+
+    ax.set_title(
+        f"Вплив MaxGen на середній час виконання (n={n}, R={R})",
+        fontsize=14,
+        pad=20
+    )
+    ax.set_xlabel("Кількість поколінь MaxGen", fontsize=12, labelpad=10)
+    ax.set_ylabel("Середній час виконання, мс", fontsize=12, labelpad=10)
+    ax.set_xticks(maxgen_values)
+
+    ax.grid(axis='y', color='#E0E0E0', linestyle='-', linewidth=0.8)
+    ax.grid(axis='x', color='#E0E0E0', linestyle='-', linewidth=0.4, alpha=0.5)
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
+    for i, value in enumerate(avg_time):
+        ax.annotate(
+            f"{value:.2f}",
+            (maxgen_values[i], avg_time[i]),
+            textcoords="offset points",
+            xytext=(0, 10),
+            ha='center',
+            fontsize=10,
+            color=c_time
+        )
+
+    plt.tight_layout()
+    out = "maxgen_time.png"
+    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor='white')
+    print(f"  ✓ Графік часу для MaxGen збережено: {out}")
+    plt.show()
+
+def experiment_maxgen(n=20, R=30, pop_size=30,
                       mutation_prob=0.1, tournament_size=3):
     _title(
         f"ЕКСПЕРИМЕНТ 1 — Вплив MaxGen  "
@@ -651,6 +785,8 @@ def experiment_maxgen(n=20, R=30, pop_size=20,
     print(f"\n  {'MaxGen':>8} | {'Сер. F1':>11} | "
           f"{'Сер. F2':>11} | {'Сер. час, мс':>14}")
     print(THIN)
+
+    results = []
 
     for mg in maxgen_values:
         f1_acc = f2_acc = t_acc = 0.0
@@ -670,19 +806,164 @@ def experiment_maxgen(n=20, R=30, pop_size=20,
             f1_acc += sol.fitness_1
             f2_acc += sol.fitness_2
 
-        print(f"\r  {mg:>8} | {f1_acc/R:>11.4f} | "
-              f"{f2_acc/R:>11.6f} | {t_acc/R:>14.4f}")
+        avg_f1 = f1_acc / R
+        avg_f2 = f2_acc / R
+        avg_time = t_acc / R
+
+        print(f"\r  {mg:>8} | {avg_f1:>11.4f} | "
+              f"{avg_f2:>11.6f} | {avg_time:>14.4f}")
+
+        results.append(dict(
+            max_gen=mg,
+            avg_f1=avg_f1,
+            avg_f2=avg_f2,
+            avg_time=avg_time
+        ))
 
     print(THIN)
-    print(
-        "  Висновок: зі збільшенням MaxGen якість розв'язків зростає,\n"
-        "  але збільшується і час виконання."
+
+    if results:
+        _plot_maxgen_experiment(results, n, R)
+
+# =============================================================
+# ЕКСПЕРИМЕНТ 2: ВПЛИВ ПАРАМЕТРА Pm   
+# =============================================================
+
+# ГРАФІК: вплив Pm на якість і час роботи ГА
+
+def _plot_pm_experiment(results, n, R, max_gen):
+    """
+    Будує два графіки для експерименту Pm:
+    1) спільний графік F1 і F2 з двома осями Y;
+    2) окремий графік середнього часу виконання.
+    """
+    import matplotlib.pyplot as plt
+    import matplotlib
+
+    matplotlib.rcParams['font.family'] = 'Times New Roman'
+    matplotlib.rcParams['font.size'] = 12
+
+    pm_values = [r['pm'] for r in results]
+    avg_f1 = [r['avg_f1'] for r in results]
+    avg_f2 = [r['avg_f2'] for r in results]
+    avg_time = [r['avg_time'] for r in results]
+
+    # ---------- Графік 1: Pm -> F1 і F2 ----------
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    fig.patch.set_facecolor('white')
+    ax1.set_facecolor('white')
+
+    c_f1 = "#5A73A8"
+    c_f2 = "#DF665C"
+
+    line1 = ax1.plot(
+        pm_values, avg_f1,
+        marker='o',
+        linestyle='-',
+        color=c_f1,
+        linewidth=2,
+        markersize=7,
+        label='Середнє F1'
     )
 
+    ax1.set_xlabel("Ймовірність мутації Pm", fontsize=12, labelpad=10)
+    ax1.set_ylabel("Середнє F1 (продуктивність)", fontsize=12, labelpad=10, color=c_f1)
+    ax1.tick_params(axis='y', labelcolor=c_f1)
+    ax1.set_xticks(pm_values)
 
-# =============================================================
-# ЕКСПЕРИМЕНТ 2: ВПЛИВ ПАРАМЕТРА Pm   (розд. 3.3.3)
-# =============================================================
+    ax2 = ax1.twinx()
+
+    line2 = ax2.plot(
+        pm_values, avg_f2,
+        marker='s',
+        linestyle='--',
+        color=c_f2,
+        linewidth=2,
+        markersize=7,
+        label='Середнє F2'
+    )
+
+    ax2.set_ylabel("Середнє F2 (надійність)", fontsize=12, labelpad=10, color=c_f2)
+    ax2.tick_params(axis='y', labelcolor=c_f2)
+
+    ax1.set_title(
+        f"Вплив Pm на середні значення F1 та F2 (n={n}, MaxGen={max_gen}, R={R})",
+        fontsize=14,
+        pad=20
+    )
+
+    ax1.grid(axis='y', color='#E0E0E0', linestyle='-', linewidth=0.8)
+    ax1.grid(axis='x', color='#E0E0E0', linestyle='-', linewidth=0.4, alpha=0.5)
+
+    ax1.spines['top'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+
+    lines = line1 + line2
+    labels = [l.get_label() for l in lines]
+
+    ax1.legend(
+        lines,
+        labels,
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.15),
+        ncol=2,
+        frameon=False,
+        fontsize=11
+    )
+
+    plt.tight_layout()
+    out = "pm_f1_f2.png"
+    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor='white')
+    print(f"\n  ✓ Графік F1/F2 для Pm збережено: {out}")
+    plt.show()
+
+    # ---------- Графік 2: Pm -> час ----------
+    fig, ax = plt.subplots(figsize=(10, 6))
+    fig.patch.set_facecolor('white')
+    ax.set_facecolor('white')
+
+    c_time = "#6A9955"
+
+    ax.plot(
+        pm_values, avg_time,
+        marker='o',
+        linestyle='-',
+        color=c_time,
+        linewidth=2,
+        markersize=7
+    )
+
+    ax.set_title(
+        f"Вплив Pm на середній час виконання (n={n}, MaxGen={max_gen}, R={R})",
+        fontsize=14,
+        pad=20
+    )
+    ax.set_xlabel("Ймовірність мутації Pm", fontsize=12, labelpad=10)
+    ax.set_ylabel("Середній час виконання, мс", fontsize=12, labelpad=10)
+    ax.set_xticks(pm_values)
+
+    ax.grid(axis='y', color='#E0E0E0', linestyle='-', linewidth=0.8)
+    ax.grid(axis='x', color='#E0E0E0', linestyle='-', linewidth=0.4, alpha=0.5)
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
+    for i, value in enumerate(avg_time):
+        ax.annotate(
+            f"{value:.2f}",
+            (pm_values[i], avg_time[i]),
+            textcoords="offset points",
+            xytext=(0, 10),
+            ha='center',
+            fontsize=10,
+            color=c_time
+        )
+
+    plt.tight_layout()
+    out = "pm_time.png"
+    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor='white')
+    print(f"  ✓ Графік часу для Pm збережено: {out}")
+    plt.show()
 
 def experiment_pm(n=20, R=30, pop_size=20, tournament_size=3):
     max_gen = 10 * n
@@ -697,6 +978,8 @@ def experiment_pm(n=20, R=30, pop_size=20, tournament_size=3):
     print(f"\n  {'Pm':>6} | {'Сер. F1':>11} | "
           f"{'Сер. F2':>11} | {'Сер. час, мс':>14}")
     print(THIN)
+
+    results = []
 
     for pm in pm_values:
         f1_acc = f2_acc = t_acc = 0.0
@@ -716,22 +999,27 @@ def experiment_pm(n=20, R=30, pop_size=20, tournament_size=3):
             f1_acc += sol.fitness_1
             f2_acc += sol.fitness_2
 
-        print(f"\r  {pm:>6.2f} | {f1_acc/R:>11.4f} | "
-              f"{f2_acc/R:>11.6f} | {t_acc/R:>14.4f}")
+        avg_f1 = f1_acc / R
+        avg_f2 = f2_acc / R
+        avg_time = t_acc / R
+
+        print(f"\r  {pm:>6.2f} | {avg_f1:>11.4f} | "
+              f"{avg_f2:>11.6f} | {avg_time:>14.4f}")
+
+        results.append(dict(
+            pm=pm,
+            avg_f1=avg_f1,
+            avg_f2=avg_f2,
+            avg_time=avg_time
+        ))
 
     print(THIN)
-    print(
-        "  Висновок: надто мала Pm уповільнює пошук нових розв'язків;\n"
-        "  надто велика — руйнує хороші особини. Оптимум зазвичай у [0.05, 0.2]."
-    )
-
+    
+    if results:
+        _plot_pm_experiment(results, n, R, max_gen)
 
 # =============================================================
 # ГРАФІК: покращення ГА над ЖА у %
-# =============================================================
-
-# =============================================================
-# ГРАФІК: покращення ГА над ЖА у % (Оновлений академічний стиль)
 # =============================================================
 
 def _plot_ga_improvement(results, R):
