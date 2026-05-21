@@ -92,7 +92,7 @@ class _SolutionProxy:
 
 
 # =============================================================
-# ОБЧИСЛЕННЯ КОЕФІЦІЄНТА ЕФЕКТИВНОСТІ  (розд. 2.2)
+# ОБЧИСЛЕННЯ КОЕФІЦІЄНТА ЕФЕКТИВНОСТІ  
 # =============================================================
 
 def calculate_efficiency(elements):
@@ -119,7 +119,7 @@ def calculate_efficiency(elements):
 
 
 # =============================================================
-# ОЦІНЮВАННЯ ОСОБИНИ   (розд. 1.3)
+# ОЦІНЮВАННЯ ОСОБИНИ   
 # =============================================================
 
 def evaluate(individual, elements):
@@ -161,7 +161,7 @@ def is_valid(individual, budget, min_weight):
 
 
 # =============================================================
-# ПРИНЦИП СПРАВЕДЛИВОГО КОМПРОМІСУ (ПСК)  (розд. 1.3.1)
+# ПРИНЦИП СПРАВЕДЛИВОГО КОМПРОМІСУ (ПСК) 
 # =============================================================
 
 def psk_compare(sol1, sol2, label1="x'", label2="x''"):
@@ -246,7 +246,7 @@ def print_psk(psk, indent="  "):
 
 
 # =============================================================
-# АЛГОРИТМ РЕАНІМАЦІЇ   (розд. 2.3.1)
+# АЛГОРИТМ РЕАНІМАЦІЇ   
 # =============================================================
 
 def reanimate(individual, elements, budget, min_weight):
@@ -279,7 +279,7 @@ def reanimate(individual, elements, budget, min_weight):
 
 
 # =============================================================
-# ЖАДІБНИЙ АЛГОРИТМ   (розд. 2.2)
+# ЖАДІБНИЙ АЛГОРИТМ  
 # =============================================================
 
 def _psk_best_candidate(candidates, selected_so_far, n_total):
@@ -352,7 +352,7 @@ def greedy_algorithm(elements, budget, min_weight):
 
 
 # =============================================================
-# ГЕНЕРАЦІЯ ПОЧАТКОВОЇ ПОПУЛЯЦІЇ   (розд. 2.3.1)
+# ГЕНЕРАЦІЯ ПОЧАТКОВОЇ ПОПУЛЯЦІЇ  
 # =============================================================
 
 def generate_population(pop_size, elements, budget, min_weight):
@@ -373,7 +373,7 @@ def generate_population(pop_size, elements, budget, min_weight):
 
 
 # =============================================================
-# ТУРНІРНИЙ ВІДБІР БАТЬКІВ   (розд. 2.3.1)
+# ТУРНІРНИЙ ВІДБІР БАТЬКІВ  
 # =============================================================
 
 def tournament_selection(population, k):
@@ -397,7 +397,7 @@ def select_parents(population, k):
 
 
 # =============================================================
-# ОДНОТОЧКОВЕ СХРЕЩУВАННЯ   (розд. 2.3.1)
+# ОДНОТОЧКОВЕ СХРЕЩУВАННЯ   
 # =============================================================
 
 def crossover(p1, p2):
@@ -409,7 +409,7 @@ def crossover(p1, p2):
 
 
 # =============================================================
-# МУТАЦІЯ   (розд. 2.3.1)
+# МУТАЦІЯ  
 # =============================================================
 
 def mutate(individual):
@@ -419,7 +419,7 @@ def mutate(individual):
 
 
 # =============================================================
-# ГЕНЕТИЧНИЙ АЛГОРИТМ   (розд. 2.3)
+# ГЕНЕТИЧНИЙ АЛГОРИТМ  
 # =============================================================
 
 def genetic_algorithm(
@@ -429,7 +429,8 @@ def genetic_algorithm(
         pop_size=20,
         max_gen=100,
         mutation_prob=0.1,
-        tournament_size=3):
+        tournament_size=3,
+        show_progress=False):
     calculate_efficiency(elements)
 
     population = generate_population(pop_size, elements, budget, min_weight)
@@ -438,8 +439,28 @@ def genetic_algorithm(
     for ind in population:
         if better(ind, best):
             best = ind.copy()
+    
+    improvement_log = []
 
-    for _ in range(max_gen):
+    if show_progress:
+        print("\n" + THIN)
+        print("  Динаміка покращення")
+        print(THIN)
+        print(
+            f"  Початковий рекорд: "
+            f"F1 = {best.fitness_1:.4f}, "
+            f"F2 = {best.fitness_2:.6f}, "
+            f"вартість = {best.total_cost:.2f}, "
+            f"важливість = {best.total_weight:.0f}"
+        )
+        print(THIN)
+        print(
+            f"  {'Покоління':>10} | {'F1':>11} | {'F2':>11} | "
+            f"{'v1':>10} | {'v2':>10} | {'v1+v2':>10} | Статус"
+        )
+        print(THIN)
+
+    for gen in range(1, max_gen + 1):
         new_pop = []
 
         while len(new_pop) < pop_size:
@@ -477,14 +498,61 @@ def genetic_algorithm(
         for ind in population:
             if better(ind, cur_best):
                 cur_best = ind
+
         if better(cur_best, best):
+            psk = psk_compare(
+                cur_best,
+                best,
+                label1="новий рекорд",
+                label2="попередній рекорд"
+            )
+
+            improvement_log.append({
+                "generation": gen,
+                "f1": cur_best.fitness_1,
+                "f2": cur_best.fitness_2,
+                "total_cost": cur_best.total_cost,
+                "total_weight": cur_best.total_weight,
+                "v1": psk["v1"],
+                "v2": psk["v2"],
+                "total_v": psk["total"]
+            })
+
+            if show_progress:
+                print(
+                    f"  {gen:>10} | "
+                    f"{cur_best.fitness_1:>11.4f} | "
+                    f"{cur_best.fitness_2:>11.6f} | "
+                    f"{psk['v1']:>+10.6f} | "
+                    f"{psk['v2']:>+10.6f} | "
+                    f"{psk['total']:>+10.6f} | "
+                    f"ПОКРАЩЕННЯ"
+                )
+
             best = cur_best.copy()
+
+    best.improvement_log = improvement_log
+
+    if show_progress:
+            print(THIN)
+            if improvement_log:
+                print(f"  Усього покращень рекорду: {len(improvement_log)}")
+                last = improvement_log[-1]
+                print(
+                    f"  Останнє покращення: покоління {last['generation']}, "
+                    f"F1 = {last['f1']:.4f}, "
+                    f"F2 = {last['f2']:.6f}, "
+                    f"v1 + v2 = {last['total_v']:+.6f}"
+                )
+            else:
+                print("  Нових покращень після початкової популяції не було.")
+            print(THIN)
 
     return best
 
 
 # =============================================================
-# ГЕНЕРАТОР ІНДИВІДУАЛЬНИХ ЗАДАЧ   (розд. 3.2)
+# ГЕНЕРАТОР ІНДИВІДУАЛЬНИХ ЗАДАЧ   
 # =============================================================
 
 def generate_task(
@@ -1394,7 +1462,7 @@ def main():
     min_weight = 20
 
     ga = {
-        "pop_size":        30,
+        "pop_size":        50,
         "max_gen":        100,
         "pm":             0.1,
         "tournament_size":  3
@@ -1484,13 +1552,15 @@ def main():
                 f"  pop_size={ga['pop_size']}, max_gen={ga['max_gen']}, "
                 f"Pm={ga['pm']}, k={ga['tournament_size']}"
             )
+            random.seed(14)
             t0  = time.perf_counter()
             sol = genetic_algorithm(
                 elements, budget, min_weight,
                 pop_size=ga["pop_size"],
                 max_gen=ga["max_gen"],
                 mutation_prob=ga["pm"],
-                tournament_size=ga["tournament_size"]
+                tournament_size=ga["tournament_size"],
+                show_progress=True
             )
             t_el = time.perf_counter() - t0
             selected = [elements[i] for i, g in enumerate(sol.genes) if g == 1]
@@ -1515,7 +1585,8 @@ def main():
                 pop_size=ga["pop_size"],
                 max_gen=ga["max_gen"],
                 mutation_prob=ga["pm"],
-                tournament_size=ga["tournament_size"]
+                tournament_size=ga["tournament_size"],
+                show_progress=True
             )
             t_ga = time.perf_counter() - t0
 

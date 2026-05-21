@@ -1,0 +1,146 @@
+{
+  "budget": 5200,
+  "min_weight": 65,
+  "elements": [
+    {
+      "name": "A",
+      "cost": 720,
+      "productivity": 190,
+      "reliability": 0.86,
+      "weight": 8
+    },
+    {
+      "name": "B",
+      "cost": 680,
+      "productivity": 175,
+      "reliability": 0.88,
+      "weight": 7
+    },
+    {
+      "name": "C",
+      "cost": 540,
+      "productivity": 120,
+      "reliability": 0.97,
+      "weight": 10
+    },
+    {
+      "name": "D",
+      "cost": 500,
+      "productivity": 110,
+      "reliability": 0.98,
+      "weight": 9
+    },
+    {
+      "name": "E",
+      "cost": 430,
+      "productivity": 95,
+      "reliability": 0.96,
+      "weight": 8
+    },
+    {
+      "name": "F",
+      "cost": 390,
+      "productivity": 80,
+      "reliability": 0.94,
+      "weight": 7
+    },
+    {
+      "name": "G",
+      "cost": 760,
+      "productivity": 210,
+      "reliability": 0.84,
+      "weight": 6
+    },
+    {
+      "name": "H",
+      "cost": 620,
+      "productivity": 145,
+      "reliability": 0.91,
+      "weight": 8
+    },
+    {
+      "name": "I",
+      "cost": 300,
+      "productivity": 55,
+      "reliability": 0.99,
+      "weight": 6
+    },
+    {
+      "name": "J",
+      "cost": 350,
+      "productivity": 70,
+      "reliability": 0.95,
+      "weight": 5
+    },
+    {
+      "name": "K",
+      "cost": 850,
+      "productivity": 230,
+      "reliability": 0.82,
+      "weight": 7
+    },
+    {
+      "name": "L",
+      "cost": 780,
+      "productivity": 205,
+      "reliability": 0.85,
+      "weight": 8
+    },
+    {
+      "name": "M",
+      "cost": 460,
+      "productivity": 90,
+      "reliability": 0.985,
+      "weight": 11
+    },
+    {
+      "name": "N",
+      "cost": 480,
+      "productivity": 105,
+      "reliability": 0.975,
+      "weight": 10
+    },
+    {
+      "name": "O",
+      "cost": 560,
+      "productivity": 130,
+      "reliability": 0.93,
+      "weight": 9
+    },
+    {
+      "name": "P",
+      "cost": 410,
+      "productivity": 75,
+      "reliability": 0.992,
+      "weight": 8
+    },
+    {
+      "name": "Q",
+      "cost": 900,
+      "productivity": 250,
+      "reliability": 0.81,
+      "weight": 6
+    },
+    {
+      "name": "R",
+      "cost": 650,
+      "productivity": 155,
+      "reliability": 0.9,
+      "weight": 9
+    },
+    {
+      "name": "S",
+      "cost": 370,
+      "productivity": 65,
+      "reliability": 0.988,
+      "weight": 7
+    },
+    {
+      "name": "T",
+      "cost": 590,
+      "productivity": 140,
+      "reliability": 0.92,
+      "weight": 9
+    }
+  ]
+}
