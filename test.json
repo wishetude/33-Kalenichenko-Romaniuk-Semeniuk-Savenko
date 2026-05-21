@@ -1,0 +1,76 @@
+{
+  "budget": 2500.0,
+  "min_weight": 35,
+  "elements": [
+    {
+      "name": "E1",
+      "cost": 220.0,
+      "productivity": 160.0,
+      "reliability": 0.94,
+      "weight": 5
+    },
+    {
+      "name": "E2",
+      "cost": 780.0,
+      "productivity": 260.0,
+      "reliability": 0.97,
+      "weight": 14
+    },
+    {
+      "name": "E3",
+      "cost": 610.0,
+      "productivity": 180.0,
+      "reliability": 0.89,
+      "weight": 11
+    },
+    {
+      "name": "E4",
+      "cost": 320.0,
+      "productivity": 120.0,
+      "reliability": 0.91,
+      "weight": 7
+    },
+    {
+      "name": "E5",
+      "cost": 910.0,
+      "productivity": 310.0,
+      "reliability": 0.95,
+      "weight": 15
+    },
+    {
+      "name": "E6",
+      "cost": 180.0,
+      "productivity": 70.0,
+      "reliability": 0.93,
+      "weight": 4
+    },
+    {
+      "name": "E7",
+      "cost": 450.0,
+      "productivity": 140.0,
+      "reliability": 0.88,
+      "weight": 9
+    },
+    {
+      "name": "E8",
+      "cost": 540.0,
+      "productivity": 200.0,
+      "reliability": 0.96,
+      "weight": 10
+    },
+    {
+      "name": "E9",
+      "cost": 130.0,
+      "productivity": 60.0,
+      "reliability": 0.90,
+      "weight": 3
+    },
+    {
+      "name": "E10",
+      "cost": 670.0,
+      "productivity": 230.0,
+      "reliability": 0.92,
+      "weight": 12
+    }
+  ]
+}
