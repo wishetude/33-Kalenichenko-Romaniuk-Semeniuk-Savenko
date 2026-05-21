@@ -1552,7 +1552,7 @@ def main():
                 f"  pop_size={ga['pop_size']}, max_gen={ga['max_gen']}, "
                 f"Pm={ga['pm']}, k={ga['tournament_size']}"
             )
-            random.seed(14)
+
             t0  = time.perf_counter()
             sol = genetic_algorithm(
                 elements, budget, min_weight,
